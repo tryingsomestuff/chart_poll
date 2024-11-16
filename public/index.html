@@ -22,23 +22,66 @@ body {
 }
 
 h1 {
-    font-size: 2rem;
+    font-size: 4rem;
     color: #2c3e50;
     margin-bottom: 20px;
     text-align: center;
 }
 
 p {
-    margin-top: 15px;
-    font-size: 1rem;
+    margin-top: 3px;
+    font-size: 1.5rem;
     color: #34495e;
     text-align: center;
     line-height: 1.5;
 }
 
-canvas {
-    margin: 20px auto;
-    display: block;
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px; 
+    margin-top: 5px; 
+    width: 700px;
+    height: auto;
+}
+
+.qr-code {
+    height: 400px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        width: 90%;
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+
+    .qr-code {
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.2rem; 
+    }
+
+    p {
+        font-size: 0.8rem; 
+    }
+
+    .qr-code {
+        height: 150px; 
+    }
 }
 
     </style>
@@ -46,8 +89,10 @@ canvas {
 <body>
     <h1>How do you like to learn ?</h1>
     <p>Click on the plot to add your learning styles.</p>
-    <canvas id="scatterPlot" width="800" height="800"></canvas>
-
+    <div class="container">
+        <img src="qr.png" alt="QR Code" class="qr-code">
+        <canvas id="scatterPlot" width="800" height="800"></canvas>
+    </div>
     <script>
         const ctx = document.getElementById('scatterPlot').getContext('2d');
 
@@ -90,7 +135,7 @@ canvas {
                             display: true,
                             text: 'Do you appreciate learning alone (0), or learn and share with others (10) ?',
                             font: {
-                                size: 16
+                                size: 12
                             }
                         }
                     },
@@ -101,7 +146,7 @@ canvas {
                             display: true,
                             text: 'Do you prefer learning from theroy (0), or go to practice immediatly (10)?',
                             font: {
-                                size: 16
+                                size: 12
                             }
                         }
                     }
