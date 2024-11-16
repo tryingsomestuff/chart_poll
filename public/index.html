@@ -114,11 +114,6 @@ p {
         const scatterConfig = {
             type: 'scatter',
             data: scatterData,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },            
             options: {
                 onClick: (e) => {
                     const canvasPosition = Chart.helpers.getRelativePosition(e, scatterPlot);
@@ -126,6 +121,11 @@ p {
                     const y = scatterPlot.scales.y.getValueForPixel(canvasPosition.y);
 
                     socket.emit('newPoint', { x, y });
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 },
                 scales: {
                     x: {
