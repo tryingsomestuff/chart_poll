@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive poll chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+p {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #34495e;
+    text-align: center;
+    line-height: 1.5;
+}
+
+canvas {
+    margin: 20px auto;
+    display: block;
+}
+
+    </style>
+</head>
+<body>
+    <h1>How do you like to learn ?</h1>
+    <p>Click on the plot to add your learning styles.</p>
+    <canvas id="scatterPlot" width="800" height="800"></canvas>
+
+    <script>
+        const ctx = document.getElementById('scatterPlot').getContext('2d');
+
+        function getColor(x, y) {
+            const r = Math.min(255, Math.max(0, Math.floor((x / 10) * 255))); 
+            const g = Math.min(255, Math.max(0, Math.floor((y / 10) * 255))); 
+            const b = Math.min(255, Math.max(0, Math.floor((1 - (x + y) / 20) * 255))); 
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        const scatterData = {
+            datasets: [{
+                label: 'Our learning styles !',
+                data: [],
+                backgroundColor: ['rgba(0, 0, 0, 1)']
+            }]
+        };
+
+        const scatterConfig = {
+            type: 'scatter',
+            data: scatterData,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },            
+            options: {
+                onClick: (e) => {
+                    const canvasPosition = Chart.helpers.getRelativePosition(e, scatterPlot);
+                    const x = scatterPlot.scales.x.getValueForPixel(canvasPosition.x);
+                    const y = scatterPlot.scales.y.getValueForPixel(canvasPosition.y);
+
+                    socket.emit('newPoint', { x, y });
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: 'Do you appreciate learning alone (0), or learn and share with others (10) ?',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: 'Do you prefer learning from theroy (0), or go to practice immediatly (10)?',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 8
+                    }
+                }
+            }
+        };
+
+        const scatterPlot = new Chart(ctx, scatterConfig);
+
+        const socket = io();
+
+        socket.on('updatePoints', (points) => {
+            scatterData.datasets[0].data = points;
+            scatterData.datasets[0].backgroundColor = points.map(point => getColor(point.x, point.y));
+            scatterPlot.update();
+        });
+    </script>
+</body>
+</html>
