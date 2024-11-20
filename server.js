@@ -6,29 +6,34 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-let points = [];
-const clientPointLimits = {};
+let points = []; 
+const clientPoints = {}; 
 
 app.use(express.static(__dirname + '/public'));
 
 io.on('connection', (socket) => {
     console.log('New user connected');
-    clientPointLimits[socket.id] = 0;
+    clientPoints[socket.id] = [];
     socket.emit('updatePoints', points);
 
     socket.on('newPoint', (point) => {
-        if (clientPointLimits[socket.id] < 3) {
-            clientPointLimits[socket.id] += 1;
+        if (clientPoints[socket.id].length === 0) {
+            clientPoints[socket.id].push(point);
             points.push(point);
             io.emit('updatePoints', points);
-        } else {
-            socket.emit('error', 'You can only add up to 3 points.');
+        } 
+        else {
+            const index = points.indexOf(clientPoints[socket.id][0]);
+            if (index !== -1) {
+                points[index] = point;
+            }
+            clientPoints[socket.id][0] = point;
+            io.emit('updatePoints', points);
         }
     });
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
-        delete clientPointLimits[socket.id];
     });
 });
 
